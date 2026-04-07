@@ -186,7 +186,7 @@
 
     #time-container {
       position: fixed;
-      bottom: 70px;
+      bottom: 76px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -195,10 +195,53 @@
       font-size: 1.2rem;
       color: #fff;
       z-index: 1001;
-      background-color: black;
-      border-radius: 4px 4px 4px 4px;
+      background-color: #1a1a1a;
+      border-top-left-radius:4px;
+      border-top-right-radius:4px;
       padding: 6px;
     }
+
+    #status-indicator {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Texto flotante */
+#status-indicator::after {
+  content: attr(data-status);
+  position: absolute;
+  bottom: 140%; /* arriba del icono */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 15px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.2s;
+  white-space: nowrap;
+}
+
+/* Flechita opcional */
+#status-indicator::before {
+  content: "";
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #000;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Mostrar al pasar el mouse */
+#status-indicator:hover::after,
+#status-indicator:hover::before {
+  opacity: 1;
+}
 
     .spinner {
       width: 20px;
@@ -279,7 +322,7 @@
 
 <div id="time-container">
   <div id="time-elapsed">00:00</div>
-  <div id="status-indicator" style="display:none;">🔴</div>
+  <div id="status-indicator" style="display:none;" data-status="Offline">🔴</div>
   <div class="spinner" id="spinner"></div>
 </div>
 
@@ -491,16 +534,20 @@
 audio.addEventListener('playing', () => {
   statusIndicator.textContent = "🟢";
    statusIndicator.classList.add("blink");
+   statusIndicator.setAttribute("data-status", "Online");
 });
 
 audio.addEventListener('error', () => {
   statusIndicator.textContent = "🔴";
   statusIndicator.classList.remove("blink");
+    statusIndicator.setAttribute("data-status", "Offline");
+
 });
 
 audio.addEventListener('stalled', () => {
   statusIndicator.textContent = "🔴";
   statusIndicator.classList.remove("blink");
+    statusIndicator.setAttribute("data-status", "Offline");
 });
 
 </script>
