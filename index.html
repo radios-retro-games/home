@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="keywords" content="Radios, Games, Retro">
+  <meta name="description" content="Escucha 24/7 Radios de Videojuegos.">
+  <meta name="robots" content="noindex, nofollow">
+
+ 
+<link rel="icon" type="image/x-icon" href="https://i.postimg.cc/K8ynQs9p/apple-touch-icon.png">
+
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <title>Game Music Radios 24/7</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+
+    /* Menú Hamburguesa */
+    nav {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 2000;
+    }
+
+    #menu-toggle {
+      font-size: 2rem;
+      cursor: pointer;
+      background: rgba(0,0,0,0.3);
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+
+    #menu-options {
+      display: none;
+      flex-direction: column;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+    }
+
+    #menu-options button {
+      background: none;
+      color: white;
+      border: none;
+      padding: 8px;
+      text-align: right;
+      cursor: pointer;
+    }
+
+    #menu-options button:hover {
+      text-decoration: underline;
+    }
+
+    header {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 60px; /* espacio para el menú arriba */
+    }
+
+    .stations-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .station-btn {
+      background: #222;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      width: 90px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      word-wrap: break-word;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .station-btn img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      margin-bottom: 5px;
+      border-radius: 10px;
+    }
+
+    .station-btn span {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #ccc;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    .station-btn:hover { transform: scale(1.1); background: #333; }
+    .active-station { border: 2px solid #28a745; background: #333; }
+
+    main { padding: 20px; text-align: center; position: relative; }
+    .station-name {
+      font-size: 2rem;
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .station-name img {
+      width: 60px; /* 20% más grande que antes */
+      height: 60px;
+      margin-bottom: 10px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .play-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1a1a1a;
+      padding: 8px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.7);
+      z-index: 1000;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-btn, .play-btn {
+      background: #28a745;
+      border: none;
+      padding: 15px;
+      font-size: 1.2rem;
+      border-radius: 50%;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    .play-btn {
+      font-size: 1.5rem;
+      width: 60px;
+      height: 60px;
+    }
+
+    .control-btn:hover, .play-btn:hover { background: #218838; }
+
+    .volume-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ccc;
+    }
+
+    .volume-control input[type="range"] { width: 100px; }
+
+    #time-container {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      color: #fff;
+      z-index: 1001;
+      background-color: black;
+      border-radius: 4px 4px 4px 4px;
+      padding: 6px;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #ccc;
+      border-top: 3px solid #28a745;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.blink {
+  animation: blink 2.5s ease-in-out infinite;
+}
+
+    .dark-mode { background-color: #0d0d0d; color: #fff; }
+    .light-mode { background-color: #f4f4f4; color: #333; }
+
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    @keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+    @media (max-width: 600px) {
+      .stations-container { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+      .station-name { font-size: 1.4rem; }
+      .volume-control input[type="range"] { width: 80px; }
+    }
+  </style>
+</head>
+
+<body class="dark-mode">
+
+<nav>
+  <div id="menu-toggle">☰</div>
+  <div id="menu-options">
+    <button onclick="setDarkMode()">Modo Oscuro</button>
+    <button onclick="setLightMode()">Modo Claro</button>
+
+<script id="_wauntq">var _wau = _wau || []; _wau.push(["small", "0ljw320qce", "ntq"]);</script><script async src="//waust.at/s.js"></script>
+
+</nav>
+
+<header>
+  <div class="stations-container" id="stations"></div>
+</header>
+
+<main>
+  <div class="station-name" id="current-station">
+    <img id="station-logo" src="" alt="" style="display:none;"><br>
+    <span id="station-text">Selecciona una emisora</span>
+  </div>
+  <audio id="audio"></audio>
+  <div id="errorMessage" class="error-message" style="display: none;">¡Error al cargar la emisora!</div>
+</main>
+
+<div id="time-container">
+  <div id="time-elapsed">00:00</div>
+  <div id="status-indicator" style="display:none;">🔴</div>
+  <div class="spinner" id="spinner"></div>
+</div>
+
+<div class="play-container">
+  <div class="controls">
+    <button class="control-btn" id="prev-btn">⏮</button>
+    <button class="play-btn" id="play-btn">▶</button>
+    <button class="control-btn" id="next-btn">⏭</button>
+  </div>
+  <div class="volume-control">
+    <span>🔊</span>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+  </div>
+</div>
+
+<script>
+  const stations = [
+  
+    { name: "Retro Radio FM", url: "https://stream-175.zeno.fm/rmxbkxsqdhjuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJybXhia3hzcWRoanV2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6Ink3ajlkcU5kUVNXWkRFSkxVZWhOM2ciLCJpYXQiOjE3NzU1MTk2NjUsImV4cCI6MTc3NTUxOTcyNX0.ZFv7SiarA9_v77qyi0Aattp1WftcYc2quCjZcBS1WLY", logo: "https://i.postimg.cc/W18V5GH2/ezgif-com-animated-gif-maker.gif" },
+  
+  { name: "Super Mario Brothers Radio ", url: "http://24.31.245.39:8002/;?type=http&nocache=14", logo: "https://www.pngplay.com/wp-content/uploads/12/Mario-Mushroom-PNG-Photo-Image.png" },
+  
+    { name: "RP Gamers Network Radio", url: "http://stream.rpgamers.net:8000/rpgn", logo: "http://www.rpgamers.net/inc/img/news/20200507-1-aground_cover.jpg" },
+    
+    { name: "Streaming Video Game Music", url: "http://69.162.124.26:8000/stream/1/", logo: "https://www.radio.net/300/classicvideogames.jpeg?version=73c986533f0e126751e74cee45be3173" },
+    
+    { name: "Final Fantasy Radio", url: "http://finalfantasystation.com:8000/stream", logo: "https://static1.thegamerimages.com/wordpress/wp-content/uploads/2023/07/final-fantasy-10-logo.jpg?q=49&fit=contain&w=420&h=260&dpr=2" },
+    
+    { name: "Hyrule Radio", url: "http://listen.radiohyrule.com:8000/listen", logo: "https://cdn-radiotime-logos.tunein.com/s110936q.png" },
+    
+    { name: "Radio Sega UK", url: "http://content.radiosega.net:8006/live", logo: "https://static.mytuner.mobi/media/tvos_radios/hhuxz722nm4t.jpg" },
+    
+{ name: "Retro PC Game Music", url: "http://gyusyabu.ddo.jp:8000/;stream.mp3", logo: "https://cdn.pixabay.com/audio/2025/02/14/15-44-56-526_200x200.png" },
+
+{ name: "VGM Radio", url: "http://radio.vgmradio.com:8040/autodj", logo: "https://cache.usercontentapp.com/logo/41285.png?format=png&enlarge=0&quality=90&width=960" },
+
+{ name: "100 FM / 100 Gamers", url: "http://gb25.streamgates.net/radios-audio/100Gamer/icecast.audio", logo: "https://media.es.wired.com/photos/6442f341a566376ee967ba24/16:9/w_2560,c_limit/GettyImages-1424828162.jpg" },
+
+{ name: "Radio Sega", url: "https://icecast.radiosega.net/live", logo: "https://www.radiosega.net/_images/template/siteHeader-newlogo.png" },
+
+{ name: "Arcade Radio", url: "https://server10.reliastream.com/proxy/arcaderadio?mp=/stream2", logo: "https://reliastream.com/player/ArcadeRadio/tmp/images/logo.1720635130.png" },
+
+{ name: "Game Play", url: "https://c22.radioboss.fm:8144/GamePlay?1745186014307", logo: "https://radiogameplay.ru/wp-content/uploads/2024/10/logo.webp" },
+
+{ name: "Game Over", url: "http://gameover-radio.com:8000/gameover-radio", logo: "https://gameover-radio.com/img/core-img/logo.png" },
+
+{ name: "Gamepad Music", url: "https://centova.listenon.in/proxy/gamepad/stream?nowx=1745161397752", logo: "https://www.gamepadmusic.com/wp-content/uploads/2021/10/GamePadLOGO.png" },
+
+{ name: "Rainware", url: "https://relay.rainwave.cc/all.mp3?1:t4DxZcQZUe", logo: "https://static1.makeuseofimages.com/wordpress/wp-content/uploads/2022/05/nintendo-controller-retro-gaming-yellow.jpg" },
+
+{ name: "RNS Radio (Sonic)", url: "https://radio.randomsonicnet.org/listen/rsn_radio/rsnradio.ogg", logo: "https://i.pinimg.com/736x/fb/13/bd/fb13bd9cdaaccee7cd840c08d54ba0b5.jpg" },
+
+{ name: "Classic Videogames Radio", url: "https://lead-server.de:1551/stream/2/", logo: "https://www.classic-videogames.de/wp-content/uploads/2017/07/radiologoplaylistupdate-1-300x141.jpg" },
+
+{ name: "Nolife-Radio", url: "https://listen.nolife-radio.com/stream", logo: "https://www.radio.es/300/nolife-radio.png?version=558aa8a2869106d8bcc79f9d1502ec08" },
+
+{ name: "Gamesboro Radio", url: "https://radio.gamesboro.org/listen/gamesboro_radio/radio.mp3", logo: "https://cdn-radiotime-logos.tunein.com/s134795d.png" },
+
+{ name: "The Mushroom Kingdom Radio", url: "https://radio.kontek.net/wtmk.opus", logo: "https://images.nintendolife.com/361626d5ccf4e/1280x720.jpg" },
+
+
+{ name: "Pokémon Forever", url: "https://pokemonforever.stream.laut.fm/pokemonforever?t302=2026-04-06_06-31-12&uuid=710fb17f-8003-4c0e-8d83-a67f675b46ef", logo: "https://cdn2.steamgriddb.com/icon_thumb/dad4d0112fe67c6a0f3ca73a6d0f7add.png" },
+
+{ name: "Super Mario Radio", url: "https://stream-163.zeno.fm/1g7zeu185zhvv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIxZzd6ZXUxODV6aHZ2IiwiaG9zdCI6InN0cmVhbS0xNjMuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6InJwdWM5elU2VHotQUF4QmdvNWJ3SWciLCJpYXQiOjE3NzU0NTYwOTQsImV4cCI6MTc3NTQ1NjE1NH0.cZM5WBPb6if4ve3WROQsoiJbyyFjB83d4d4Uak4xTu0&cto-uid=39c8e392-69c8-470c-a320-5a8f8be2905f-6845a32e-484e&an-uid=1255748430096224005&dot-uid=0d36240200f35470dfe7d202&amb-uid=7538567337559357638&dbm-uid=CAESENF_05g84Oc61Kpu5L9EBwI&dyn-uid=136086855657100828&ttd-uid=f83a48da-759d-4eed-970f-1826085c342b&aw_0_req_lsid=010e417a46c8b459f684bdf6726787ed", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Mario_emblem.svg/960px-Mario_emblem.svg.png" },
+
+
+{ name: "Tribu Nintendera FM", url: "https://stream.zeno.fm/78mdcrh41xhvv", logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRccX6vI03rXgBJZQ0iKsjK9-K9Buzd2M3pgllUehhytA&s" },
+
+
+{ name: "Game Curated Classic", url: "https://gamecuratedclassics.stream.laut.fm/gamecuratedclassics", logo: "https://art.pixilart.com/sr2d92a6076d0aws3.png" },
+
+{ name: "Dendy Collection", url: "https://sergeisam.fvds.ru:4480/radio", logo: "https://radio-volna.com/uploads/posts/2025-10/dendy-collection.webp" },
+
+{ name: "PlayPixel Radio", url: "https://stream-178.zeno.fm/nwmvh8t41k8uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJud212aDh0NDFrOHV2IiwiaG9zdCI6InN0cmVhbS0xNzguemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IlNaR1lYMEQ2UnVXbVAwZXB2RG9qZGciLCJpYXQiOjE3NzU1MzQxODAsImV4cCI6MTc3NTUzNDI0MH0.rD9ciMLlRViGGk8Go1fF5HzQ_aN4YSR5LpxotlvdHQ4", logo: "https://zeno.fm/_ipx/_/https://images.zeno.fm/oxrYrKK_8UQRvu55CCXsSVYuhONBRcZdBu7ANHnNesw/rs:fill:288:288/g:ce:0:0/aHR0cHM6Ly9wcm94eS56ZW5vLmZtL2NvbnRlbnQvc3RhdGlvbnMvYWd4emZucGxibTh0YzNSaGRITnlNZ3NTQ2tGMWRHaERiR2xsYm5RWWdJRFF4NWEyd0FnTUN4SU9VM1JoZEdsdmJsQnliMlpwYkdVWWdJRFF4NFd6aHdrTW9nRUVlbVZ1YncvaW1hZ2UvP3U9MTY3MjIyMjc4NjAwMA.webp" },
+
+{ name: "8Bit FM", url: "https://listen4.myradio24.com/85516", logo: "https://kuasark.com/files/stations-logos/8-bit-fm.png" },
+
+
+{ name: "Radio Caprice", url: "http://79.120.39.202:8002/musicgame", logo: "https://oetpai.fra1.digitaloceanspaces.com/new_images/onestop_99368801_100110.png" },
+
+{ name: "Sonic Radio", url: "https://play.soundtest.fm/sonic", logo: "https://soundtest.fm/img/sonicradiologo.jpg" },
+
+
+
+  ];
+  const stationsContainer = document.getElementById('stations');
+  const currentStation = document.getElementById('station-text');
+  const stationLogo = document.getElementById('station-logo');
+  const playBtn = document.getElementById('play-btn');
+  const audio = document.getElementById('audio');
+  const volumeSlider = document.getElementById('volume-slider');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const timeElapsed = document.getElementById('time-elapsed');
+  const spinner = document.getElementById('spinner');
+  const errorMessage = document.getElementById('errorMessage');
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuOptions = document.getElementById('menu-options');
+  const statusIndicator = document.getElementById('status-indicator');
+
+  let selectedStation = null;
+  let selectedButton = null;
+  let currentIndex = -1;
+  let timer = null;
+
+  menuToggle.addEventListener('click', () => {
+    menuOptions.style.display = menuOptions.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  function setDarkMode() {
+    document.body.classList.remove('light-mode');
+    document.body.classList.add('dark-mode');
+    menuOptions.style.display = 'none';
+  }
+
+  function setLightMode() {
+    document.body.classList.remove('dark-mode');
+    document.body.classList.add('light-mode');
+    menuOptions.style.display = 'none';
+  }
+
+  stations.forEach((station, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'station-btn';
+    btn.innerHTML = `<img src="${station.logo}" alt="${station.name}"><span>${station.name}</span>`;
+    btn.onclick = () => selectStation(station, btn, index);
+    stationsContainer.appendChild(btn);
+  });
+
+  function selectStation(station, btn, index) {
+    spinner.style.display = 'inline-block';
+    errorMessage.style.display = 'none';
+    statusIndicator.style.display = "inline";
+      statusIndicator.classList.remove("blink");
+  statusIndicator.textContent = "🔴";
+    selectedStation = station;
+    currentIndex = index;
+    audio.src = station.url;
+    if (selectedButton) selectedButton.classList.remove('active-station');
+    selectedButton = btn;
+    btn.classList.add('active-station');
+    stationLogo.src = station.logo;
+    stationLogo.style.display = 'block';
+    setTimeout(() => {
+      audio.play().catch(() => {
+        errorMessage.style.display = 'block';
+      });
+      currentStation.textContent = station.name;
+      spinner.style.display = 'none';
+      playBtn.textContent = '⏸';
+    }, 1200);
+    resetTimer();
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (!selectedStation) return;
+    if (audio.paused) {
+      audio.play().catch(() => {
+        errorMessage.style.display = 'block';
+      });
+      playBtn.textContent = '⏸';
+      startTimer();
+    } else {
+      audio.pause();
+      playBtn.textContent = '▶';
+      clearInterval(timer);
+    }
+  });
+
+  function startTimer() {
+    clearInterval(timer);
+    timer = setInterval(updateTime, 1000);
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timeElapsed.textContent = "00:00";
+    startTimer();
+  }
+
+  function updateTime() {
+    const minutes = Math.floor(audio.currentTime / 60);
+    const seconds = Math.floor(audio.currentTime % 60);
+    timeElapsed.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  volumeSlider.addEventListener('input', () => {
+    audio.volume = volumeSlider.value;
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      const prevStation = stations[currentIndex - 1];
+      const btns = document.querySelectorAll('.station-btn');
+      selectStation(prevStation, btns[currentIndex - 1], currentIndex - 1);
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (currentIndex < stations.length - 1) {
+      const nextStation = stations[currentIndex + 1];
+      const btns = document.querySelectorAll('.station-btn');
+      selectStation(nextStation, btns[currentIndex + 1], currentIndex + 1);
+    }
+  });
+
+/* ===== ESTADO ONLINE / OFFLINE ===== */
+
+audio.addEventListener('playing', () => {
+  statusIndicator.textContent = "🟢";
+   statusIndicator.classList.add("blink");
+});
+
+audio.addEventListener('error', () => {
+  statusIndicator.textContent = "🔴";
+  statusIndicator.classList.remove("blink");
+});
+
+audio.addEventListener('stalled', () => {
+  statusIndicator.textContent = "🔴";
+  statusIndicator.classList.remove("blink");
+});
+
+</script>
+
+</body>
+</html>
